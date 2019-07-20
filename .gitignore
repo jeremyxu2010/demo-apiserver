@@ -1,0 +1,9 @@
+
+vendor
+kubeconfig
+docs
+.vscode
+default.etcd
+bin
+apiserver.local.config
+violations.report

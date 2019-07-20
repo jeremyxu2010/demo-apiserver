@@ -1,0 +1,6 @@
+apiVersion: demo.jeremyxu2010.me/v1beta1
+kind: Foo
+metadata:
+  name: foo-example
+  namespace: test
+spec: {}

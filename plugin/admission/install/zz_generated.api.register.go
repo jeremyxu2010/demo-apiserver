@@ -32,6 +32,7 @@ import (
 func init() {
 	server.AggregatedAdmissionInitializerGetter = GetAggregatedResourceAdmissionControllerInitializer
 	server.AggregatedAdmissionPlugins["Foo"] = NewFooPlugin()
+
 }
 
 func GetAggregatedResourceAdmissionControllerInitializer(config *rest.Config) (admission.PluginInitializer, genericserver.PostStartHookFunc) {

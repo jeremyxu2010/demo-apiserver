@@ -17,3 +17,12 @@ type FooBarOptions struct {
 	metav1.TypeMeta
 	Arg1 string `json:"arg1"`
 }
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// FooBarOptionsList FooBarOptionsList
+type FooBarOptionsList struct {
+	metav1.TypeMeta
+	metav1.ListMeta
+	Items []FooBarOptions
+}

@@ -1,4 +1,3 @@
-
 /*
 Copyright YEAR The Kubernetes Authors.
 
@@ -15,12 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
-
-
 // +k8s:deepcopy-gen=package,register
 // +groupName=demo.jeremyxu2010.me
 
-// Package api is the internal version of the API.
+// Package demo api is the internal version of the API.
 package demo
-

@@ -1,4 +1,3 @@
-
 /*
 Copyright YEAR The Kubernetes Authors.
 
@@ -15,29 +14,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
-
 package fooadmission
 
 import (
-	aggregatedadmission "github.com/jeremyxu2010/demo-apiserver/plugin/admission"
-	aggregatedinformerfactory "github.com/jeremyxu2010/demo-apiserver/pkg/client/informers_generated/externalversions"
 	aggregatedclientset "github.com/jeremyxu2010/demo-apiserver/pkg/client/clientset_generated/clientset"
+	aggregatedinformerfactory "github.com/jeremyxu2010/demo-apiserver/pkg/client/informers_generated/externalversions"
+	aggregatedadmission "github.com/jeremyxu2010/demo-apiserver/plugin/admission"
+	"k8s.io/apiserver/pkg/admission"
 	genericadmissioninitializer "k8s.io/apiserver/pkg/admission/initializer"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/apiserver/pkg/admission"
 )
 
-var _ admission.Interface 											= &fooPlugin{}
-var _ admission.MutationInterface 									= &fooPlugin{}
-var _ admission.ValidationInterface 								= &fooPlugin{}
-var _ genericadmissioninitializer.WantsExternalKubeInformerFactory 	= &fooPlugin{}
-var _ genericadmissioninitializer.WantsExternalKubeClientSet 		= &fooPlugin{}
-var _ aggregatedadmission.WantsAggregatedResourceInformerFactory 	= &fooPlugin{}
-var _ aggregatedadmission.WantsAggregatedResourceClientSet 			= &fooPlugin{}
+var _ admission.Interface = &fooPlugin{}
+var _ admission.MutationInterface = &fooPlugin{}
+var _ admission.ValidationInterface = &fooPlugin{}
+var _ genericadmissioninitializer.WantsExternalKubeInformerFactory = &fooPlugin{}
+var _ genericadmissioninitializer.WantsExternalKubeClientSet = &fooPlugin{}
+var _ aggregatedadmission.WantsAggregatedResourceInformerFactory = &fooPlugin{}
+var _ aggregatedadmission.WantsAggregatedResourceClientSet = &fooPlugin{}
 
-func NewFooPlugin() *fooPlugin {
+// NewFooPlugin NewFooPlugin
+func NewFooPlugin() admission.Interface {
 	return &fooPlugin{
 		Handler: admission.NewHandler(admission.Create, admission.Update),
 	}
@@ -51,15 +49,16 @@ func (p *fooPlugin) ValidateInitialization() error {
 	return nil
 }
 
-func (p *fooPlugin) Admit(a admission.Attributes) error {
+func (p *fooPlugin) Admit(_ admission.Attributes) error {
 	return nil
 }
 
-func (p *fooPlugin) Validate(a admission.Attributes) error {
+func (p *fooPlugin) Validate(_ admission.Attributes) error {
 	return nil
 }
 
-func (p *fooPlugin) SetAggregatedResourceInformerFactory(aggregatedinformerfactory.SharedInformerFactory) {}
+func (p *fooPlugin) SetAggregatedResourceInformerFactory(aggregatedinformerfactory.SharedInformerFactory) {
+}
 
 func (p *fooPlugin) SetAggregatedResourceClientSet(aggregatedclientset.Interface) {}
 

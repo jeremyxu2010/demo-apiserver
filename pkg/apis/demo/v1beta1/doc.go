@@ -21,6 +21,7 @@ limitations under the License.
 // backward compatibility by support multiple concurrent versions
 // of the same resource
 
+// Package v1beta1 v1beta1
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen=package,register
 // +k8s:conversion-gen=github.com/jeremyxu2010/demo-apiserver/pkg/apis/demo

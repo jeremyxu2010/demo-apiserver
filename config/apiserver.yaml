@@ -1,0 +1,186 @@
+
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  name: v1beta1.demo.jeremyxu2010.me
+  labels:
+    api: foo-apiserver
+    apiserver: "true"
+spec:
+  version: v1beta1
+  group: demo.jeremyxu2010.me
+  groupPriorityMinimum: 2000
+  service:
+    name: foo-apiserver
+    namespace: default
+  versionPriority: 10
+  caBundle: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURWakNDQWo0Q0NRREl6T2FndVIwUEhEQU5CZ2txaGtpRzl3MEJBUXNGQURCdE1Rc3dDUVlEVlFRR0V3SjEKYmpFTE1Ba0dBMVVFQ0F3Q2MzUXhDakFJQmdOVkJBY01BV3d4Q2pBSUJnTlZCQW9NQVc4eEN6QUpCZ05WQkFzTQpBbTkxTVN3d0tnWURWUVFERENObWIyOHRZWEJwYzJWeWRtVnlMV05sY25ScFptbGpZWFJsTFdGMWRHaHZjbWwwCmVUQWVGdzB4T1RBM01qSXhOakEyTXpKYUZ3MHlNREEzTWpFeE5qQTJNekphTUcweEN6QUpCZ05WQkFZVEFuVnUKTVFzd0NRWURWUVFJREFKemRERUtNQWdHQTFVRUJ3d0JiREVLTUFnR0ExVUVDZ3dCYnpFTE1Ba0dBMVVFQ3d3QwpiM1V4TERBcUJnTlZCQU1NSTJadmJ5MWhjR2x6WlhKMlpYSXRZMlZ5ZEdsbWFXTmhkR1V0WVhWMGFHOXlhWFI1Ck1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBeE1ZVkp1TndYSlczL1lzN2lkL2YKWFl3ZGNET0tza0NPaFcvUlhqc0F5a3VPVzUzSlJrMTVuWUVWeW4ydFdnckloSWg4b3dIM1g3aFpWME5tS2hsVAp1VG5RVWhKWER4MVowdDRkLy81dkFCYlhkZ3pPRERGTnRaTllucS9VKy9WY1pGeEQrR0hoU0c5UUJmNkh4SWVkCnp5d0NsMVZpL3B0SVdrWitlZ2NldWRWU0xoZTZyZE1zaC9jSGFNR0Nkd0U1OWZDQ2p2NHF2aUJXSmptQ1JMY0MKR0Y5THdkODRKYmM3YXBFaFBlTWdFcFNTSCtKWExyNnp0ZWdRbGd2cVg5amFkUFUrRlNuVk9yY2V3Q0xLODVxcwpoYm5vUDZRODJPTERVb1hsa3RoYVlEeVBQT1d2d2xOWk1zRmdnS2FqaXhJWDFsR29iYThxam94b0w2ZjNvazNsCmZ3SURBUUFCTUEwR0NTcUdTSWIzRFFFQkN3VUFBNElCQVFCeFhRWlBEbThPZ0tTRHlnYzdaQ2UzU3RONFdDbkwKYzQza0d4NERhcTNZcG5HR21lUmpnd3pobzFKcllyTkY4RGo2M1ZJNTdLQ2I1M3JKSHFwd1UxR0VEL0w1TDNtcQpKeXE3Y2lWbnB2bHJiWWRSYXNXaHVIQzVzOUQwODdyMDBONGY4OE9YR1JHUTB0dnVEcHpUa0lFWTE4RWJuMWtBCnRHTWNMTUtuTGZyK2RyQUJPZis5S01lWGN4OFN1aldNbW4zNGFaSjNxeWRLaktseC80ajdJb1NFOG93d0pzNjcKLzlUdFBSdTRHV2l0WElvTmZtdjFSdDY3aEFIUmhlSEQ1ais0azdFMDJjbElrREIrNkNJOGluczZzZjdKRm92NgpCRUVwS0xIemUwb1ltbmo2cFRtdlZncC81THpseXc0dDkrRHVVZE1kMEN5TEVMUklKRU1oWUtuTAotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg=="
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: foo-apiserver
+  namespace: default
+  labels:
+    api: foo-apiserver
+    apiserver: "true"
+spec:
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 443
+  selector:
+    api: foo-apiserver
+    apiserver: "true"
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: foo-apiserver
+  namespace: default
+  labels:
+    api: foo-apiserver
+    apiserver: "true"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        api: foo-apiserver
+        apiserver: "true"
+    spec:
+      containers:
+      - name: apiserver
+        image: demo/foo-apiserver:latest
+        volumeMounts:
+        - name: apiserver-certs
+          mountPath: /apiserver.local.config/certificates
+          readOnly: true
+        command:
+        - "./apiserver"
+        args:
+        - "--etcd-servers=http://etcd-svc:2379"
+        - "--tls-cert-file=/apiserver.local.config/certificates/tls.crt"
+        - "--tls-private-key-file=/apiserver.local.config/certificates/tls.key"
+        - "--audit-log-path=-"
+        - "--audit-log-maxage=0"
+        - "--audit-log-maxbackup=0"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 20Mi
+          limits:
+            cpu: 100m
+            memory: 30Mi
+      - name: controller
+        image: demo/foo-apiserver:latest
+        command:
+        - "./controller-manager"
+        args:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 20Mi
+          limits:
+            cpu: 100m
+            memory: 30Mi
+      volumes:
+      - name: apiserver-certs
+        secret:
+          secretName: foo-apiserver
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: etcd
+  namespace: default
+spec:
+  serviceName: "etcd"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: etcd
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: etcd
+        image: quay.io/coreos/etcd:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 100m
+            memory: 20Mi
+          limits:
+            cpu: 100m
+            memory: 30Mi
+        env:
+        - name: ETCD_DATA_DIR
+          value: /etcd-data-dir
+        command:
+        - /usr/local/bin/etcd
+        - --listen-client-urls
+        - http://0.0.0.0:2379
+        - --advertise-client-urls
+        - http://localhost:2379
+        ports:
+        - containerPort: 2379
+        volumeMounts:
+        - name: etcd-data-dir
+          mountPath: /etcd-data-dir
+        readinessProbe:
+          httpGet:
+            port: 2379
+            path: /health
+          failureThreshold: 1
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 2
+        livenessProbe:
+          httpGet:
+            port: 2379
+            path: /health
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 2
+  volumeClaimTemplates:
+  - metadata:
+     name: etcd-data-dir
+     annotations:
+        volume.beta.kubernetes.io/storage-class: standard
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+         storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd-svc
+  namespace: default
+  labels:
+    app: etcd
+spec:
+  ports:
+  - port: 2379
+    name: etcd
+    targetPort: 2379
+  selector:
+    app: etcd
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/tls
+metadata:
+  name: foo-apiserver
+  namespace: default
+  labels:
+    api: foo-apiserver
+    apiserver: "true"
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURURENDQWpRQ0NRQ3hVcnN4RGtzR0xqQU5CZ2txaGtpRzl3MEJBUVVGQURCdE1Rc3dDUVlEVlFRR0V3SjEKYmpFTE1Ba0dBMVVFQ0F3Q2MzUXhDakFJQmdOVkJBY01BV3d4Q2pBSUJnTlZCQW9NQVc4eEN6QUpCZ05WQkFzTQpBbTkxTVN3d0tnWURWUVFERENObWIyOHRZWEJwYzJWeWRtVnlMV05sY25ScFptbGpZWFJsTFdGMWRHaHZjbWwwCmVUQWVGdzB4T1RBM01qSXhOakEyTXpKYUZ3MHlNREEzTWpFeE5qQTJNekphTUdNeEN6QUpCZ05WQkFZVEFuVnUKTVFzd0NRWURWUVFJREFKemRERUtNQWdHQTFVRUJ3d0JiREVLTUFnR0ExVUVDZ3dCYnpFTE1Ba0dBMVVFQ3d3QwpiM1V4SWpBZ0JnTlZCQU1NR1dadmJ5MWhjR2x6WlhKMlpYSXVaR1ZtWVhWc2RDNXpkbU13Z2dFaU1BMEdDU3FHClNJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUURROUhBK3QrWjBDNHhQMU9hR21KN0FhbVBGUFpYcFl6WkgKOFNxWE0xenZiYk9GNDRITjQwb2xtSERwd0pZd3hpM09zUFphVEN0N3J1ejNiUyt6ZS9LVmcxcTk3M2xCd0JULwp0ckcxUE11MXhJN3gvZFdGYWVIQWhhYzBFZTRFNS83THRXRmRQN0JwMHhBOG9aYU55U01ydzVQMFY2V0xBb0NlCloxZmJuMzU2MGQ2NW5MdWdpcE4xelpuR2NpUUtRZXF4OXZmMjFYZlcycUpZSHlXVVlxY2NPTHNabWF2bXJlVncKelhpNmVqQWZiclhwNjgxckFJbGhuRk1XbVc4Nm5NT3krK0YvUEJuSEFGQ3RpL1lDaER0WjZTOUZFL0tQbGt0VApIdGg2ajg2L24zWmZaQmY0VmpnRGh1WTVEcWU1cVQyK3M5QVBMY0pIRTloVllwYzVITjQ5QWdNQkFBRXdEUVlKCktvWklodmNOQVFFRkJRQURnZ0VCQUJOYzAzYWRwQ0xYaG40N00zWWhaRDZ2YVNIL3Boa0FVTEg5YmJLQTU2cDIKZy9HSnBKdWo2YlBZaTJ0TktEeVBSYy9TSjhrSUZKM3NhWDJreE9Tb1FOdzBjTGdIU2Q0M3BESDMrYTJrNys1dgpMbGRPRFpBMk9VSkQ3Z3h0YmZWTTJ3dTlYVzU0WmZ2TE10b05TdmlwZjRaZGJQS054ZGQ1TDhWY1JXeEVVQWp3CkNSUmpNbDFoaVBBTzNTamlXNEF6U09MamQ4Z3NnVGI3RHIvN2o4RHNFeng5alBhMHJPZGhpRzE2Nndab2RQSjIKUlQ0TkFQNGNud0E0WW1mZVNMVjNNTTdTRms3bWQxektweDZmK045Q1pXRklrZEc0cFQrdFNkTG5aeWZ6Q3hHNgpqdjR0aStWV1gwV3VhdVVDc1lXcnUwbXNmNFRBeU1kNE5LRDBFVWYxTVdNPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2Z0lCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktnd2dnU2tBZ0VBQW9JQkFRRFE5SEErdCtaMEM0eFAKMU9hR21KN0FhbVBGUFpYcFl6Wkg4U3FYTTF6dmJiT0Y0NEhONDBvbG1IRHB3Sll3eGkzT3NQWmFUQ3Q3cnV6MwpiUyt6ZS9LVmcxcTk3M2xCd0JUL3RyRzFQTXUxeEk3eC9kV0ZhZUhBaGFjMEVlNEU1LzdMdFdGZFA3QnAweEE4Cm9aYU55U01ydzVQMFY2V0xBb0NlWjFmYm4zNTYwZDY1bkx1Z2lwTjF6Wm5HY2lRS1FlcXg5dmYyMVhmVzJxSlkKSHlXVVlxY2NPTHNabWF2bXJlVnd6WGk2ZWpBZmJyWHA2ODFyQUlsaG5GTVdtVzg2bk1PeSsrRi9QQm5IQUZDdAppL1lDaER0WjZTOUZFL0tQbGt0VEh0aDZqODYvbjNaZlpCZjRWamdEaHVZNURxZTVxVDIrczlBUExjSkhFOWhWCllwYzVITjQ5QWdNQkFBRUNnZ0VCQUlhMFhqd0FmLzlsaG5IY2xUUkY1V216N0ZlMlNSTnBFeEF6NTdvTHNhamsKZHF3a3E0U1lOeStmWTRNOTFWVGlIWnUydDBvaytvOUVpSjFGZFUvbTRzOENIQmgvN2hLMkNwT0RLbkxsRzRvMQppZFYxUnhZMzJRSXM1MHFKR0lGdk1mSVBIeEpuUVlvbk43dHVqRWtoVnB3YS9DR3o4eE4zYklVeHFCRDhkQ1FtClJwaDcrbCtPR01sVzFXNS80MXd3ZDI5eDduOVEvdm1WOHdCZ3lxTzFxdXFTTmQyK0Q1cDRLamdTWGJoakFtdkgKR050elU5a3pFbzB4OXM2RjVycHgxcmlqVllMMTFJWFhCVHgvQWpnWUZxeTNWN1lxODR5cEpWSm9xaUIvY1RQcwp5VGk2dWhSWGZUK1Jra0N5ZytrY29WbFFpQ1VEQ3F3VmcwVklCcTM0dXAwQ2dZRUErdGNZcDl6OFUzUGN3QmxrClpwRy82dGgvVy9HaFd2czhPNCtMSUdVYy9pODZLTW5TUjBRL0VJbFM3b0haLzJDVWdXb044TlF1dktLLzZFUEMKUFczNkZsQ2pSbjkrOEN6cVNwdVYvRGZJUmxMSkx4ZmdWTG9xdUZXLzcwNTRVdUlCci9CdnZBSUZRZFBOeWFFbgpVdWJDMm5XOVVMOXhUK29lS2dEVlY1N0ZOUzhDZ1lFQTFVREc5NE1iSHZnMHI0c21YYlBxRlNGZFphOVluTDRFCisyMjdiZy96SENxYTBnZ2NHQnV6REovT09HZGM1WlpKeFhvMlVkNjdZYitnbmkzdERoVnFvS3M0bmhBdWpDdTMKNTJhZE1rYTMwZTFxVENPY25UTWx4VjZjVjgxZWU0OTgwVkFWSjBVYnIwRjNRcGlFWEdIT1BSbDdtWGpvZFJ0egppVysxTXArMVlGTUNnWUVBc1NHSmFLaDFpbHpMNnQ5RGRlYkFWbzl4U0RVV0UxQk1WV2JsQVFoRjgvelhuZ3YrCnNKS3gwZlNYR3BPWnBHdklFcWNZbHhMT3VpaFhTaVhuR1VmN0RSeitYMzhTM1hscUxTczNPN2NNZHhSb3V4ZXEKTTBxUGRrSWZXbGJZUXZjVDUvRHFoaUlMSWxQMkFzY0pKTktOa0lVS0hlWkNsd01sTDlZTTBXWHRyc01DZ1lBVApTVHQxVVFjWDR1eW8zNVhGcmFyQzVIU1U2S25ENnk5NkthOWt3YzZEd3BxajJoWG9YRUR5S0ZXM0ppbnhuWWpvCmNpZ05lVzVLNWRDNTNYOXQ0YVAyQ2VZaDdXYTRTSS9tUHBLQzVJQmxYT3BiSG5GZ2lpcWxVZXdqeUsvOXpybEUKR05FQTd6QVV4bi9wcHU5NWgyTG1oYkoyNjhkaUoreG9CcEZGbGNvS2Z3S0JnQkxvRXh4RDhpWmFidFhnMnR6ZwpVQ0lwS2tYZTVaenBkczBqYzZYUnJZbGx4OGtQeXcxSk10M1Z1NWVCZ3FjVXRzREZZdFlpc0Rhc3ZmaDM2UGFnCjdFQ0FKcGN1WEErblZDcmlKc1lRQ2d5b3p5Z3QxcFBXMjk5dm51eklkQUNlbzVvZXdSbVlVUEoxRklVblRvcGUKQ0c1NTlRTVAwK2ZqRVZEd2NQR0ZjWkxkCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K
